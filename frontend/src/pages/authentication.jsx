@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState } from "react";
 import {
   Box,
   Button,
@@ -10,19 +10,19 @@ import {
   Typography,
   Snackbar,
   Alert,
-} from '@mui/material';
+} from "@mui/material";
 
-import { AuthContext } from '../contexts/AuthContext';
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function Authentication() {
   const [formState, setFormState] = useState(0); // 0 = login, 1 = register
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
 
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
 
   const { handleRegister, handleLogin } = useContext(AuthContext);
@@ -30,27 +30,28 @@ export default function Authentication() {
   const handleAuth = async (e) => {
     e.preventDefault();
 
-    setError('');
+    setError("");
 
     try {
       if (formState === 0) {
         // LOGIN
-        await handleLogin(username, password);
+        const result = await handleLogin(username, password);
+
+        console.log("Login successful:", result);
+
+        // Redirect after successful login
+        window.location.href = "/";
       } else {
         // REGISTER
-        const result = await handleRegister(
-          name,
-          username,
-          password
-        );
+        const result = await handleRegister(name, username, password);
 
         setMessage(result);
         setOpen(true);
 
         // Clear form
-        setName('');
-        setUsername('');
-        setPassword('');
+        setName("");
+        setUsername("");
+        setPassword("");
 
         // Switch back to login
         setFormState(0);
@@ -59,9 +60,7 @@ export default function Authentication() {
       console.error(err);
 
       const errorMessage =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Something went wrong';
+        err?.response?.data?.message || err?.message || "Something went wrong";
 
       setError(errorMessage);
     }
@@ -73,19 +72,18 @@ export default function Authentication() {
 
       <Box
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background:
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           p: 2,
         }}
       >
         <Paper
           elevation={8}
           sx={{
-            width: '100%',
+            width: "100%",
             maxWidth: 450,
             p: { xs: 3, sm: 5 },
             borderRadius: 3,
@@ -100,16 +98,13 @@ export default function Authentication() {
                 fontWeight="bold"
                 gutterBottom
               >
-                {formState === 0 ? 'Welcome Back' : 'Create Account'}
+                {formState === 0 ? "Welcome Back" : "Create Account"}
               </Typography>
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
+              <Typography variant="body2" color="text.secondary">
                 {formState === 0
-                  ? 'Sign in to your video conferencing account'
-                  : 'Create your video conferencing account'}
+                  ? "Sign in to your video conferencing account"
+                  : "Create your video conferencing account"}
               </Typography>
             </Box>
 
@@ -117,10 +112,10 @@ export default function Authentication() {
             <Stack direction="row" spacing={1}>
               <Button
                 fullWidth
-                variant={formState === 0 ? 'contained' : 'outlined'}
+                variant={formState === 0 ? "contained" : "outlined"}
                 onClick={() => {
                   setFormState(0);
-                  setError('');
+                  setError("");
                 }}
               >
                 Sign In
@@ -128,10 +123,10 @@ export default function Authentication() {
 
               <Button
                 fullWidth
-                variant={formState === 1 ? 'contained' : 'outlined'}
+                variant={formState === 1 ? "contained" : "outlined"}
                 onClick={() => {
                   setFormState(1);
-                  setError('');
+                  setError("");
                 }}
               >
                 Sign Up
@@ -173,11 +168,7 @@ export default function Authentication() {
                 />
 
                 {/* Error */}
-                {error && (
-                  <Alert severity="error">
-                    {error}
-                  </Alert>
-                )}
+                {error && <Alert severity="error">{error}</Alert>}
 
                 {/* Submit */}
                 <Button
@@ -187,23 +178,20 @@ export default function Authentication() {
                   fullWidth
                   sx={{
                     py: 1.4,
-                    fontSize: '1rem',
-                    textTransform: 'none',
+                    fontSize: "1rem",
+                    textTransform: "none",
                   }}
                 >
-                  {formState === 0 ? 'Sign In' : 'Create Account'}
+                  {formState === 0 ? "Sign In" : "Create Account"}
                 </Button>
               </Stack>
             </Box>
 
             {/* Bottom text */}
-            <Typography
-              textAlign="center"
-              variant="body2"
-            >
+            <Typography textAlign="center" variant="body2">
               {formState === 0
                 ? "Don't have an account? "
-                : 'Already have an account? '}
+                : "Already have an account? "}
 
               <Link
                 component="button"
@@ -211,10 +199,10 @@ export default function Authentication() {
                 underline="hover"
                 onClick={() => {
                   setFormState(formState === 0 ? 1 : 0);
-                  setError('');
+                  setError("");
                 }}
               >
-                {formState === 0 ? 'Sign Up' : 'Sign In'}
+                {formState === 0 ? "Sign Up" : "Sign In"}
               </Link>
             </Typography>
           </Stack>
@@ -230,7 +218,7 @@ export default function Authentication() {
         <Alert
           severity="success"
           onClose={() => setOpen(false)}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {message}
         </Alert>

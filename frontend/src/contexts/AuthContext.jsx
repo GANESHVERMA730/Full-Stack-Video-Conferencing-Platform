@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
 
       return response.data.message || 'Registration successful';
     } catch (error) {
+      console.error('Registration error:', error);
       throw error;
     }
   };
@@ -37,12 +38,10 @@ export const AuthProvider = ({ children }) => {
 
       const { token, user } = response.data;
 
-      // Save token
       if (token) {
         localStorage.setItem('token', token);
       }
 
-      // Save user
       if (user) {
         setUser(user);
         localStorage.setItem('user', JSON.stringify(user));
@@ -50,11 +49,11 @@ export const AuthProvider = ({ children }) => {
 
       return response.data;
     } catch (error) {
+      console.error('Login error:', error);
       throw error;
     }
   };
 
-  // Logout
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -75,4 +74,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
