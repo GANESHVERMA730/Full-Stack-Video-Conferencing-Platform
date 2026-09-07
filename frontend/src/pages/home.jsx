@@ -13,7 +13,12 @@ function HomeComponent() {
     const { addToUserHistory } = useContext(AuthContext);
 
     const handleJoinVideoCall = async () => {
-        await addToUserHistory(meetingCode);
+        if (!meetingCode.trim()) return;
+        try {
+            await addToUserHistory(meetingCode);
+        } catch (e) {
+            console.warn("Could not save meeting to history:", e?.response?.data?.message || e?.message);
+        }
         navigate(`/${meetingCode}`);
     };
 

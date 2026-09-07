@@ -1,7 +1,8 @@
 .landingPageContainer {
     width: 100%;
     min-height: 100vh;
-    background: url("/public/background.png");
+    background-size: cover;
+    background-position: center;
     color: white;
     overflow: hidden;
 }

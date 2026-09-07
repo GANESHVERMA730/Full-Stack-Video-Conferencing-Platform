@@ -6,7 +6,7 @@ export default function LandingPage() {
   const router = useNavigate();
 
   return (
-    <div className="landingPageContainer">
+    <div className="landingPageContainer" style={{ backgroundImage: "url('/background.png')" }}>
       <nav>
         <div className="navHeader">
           <h2>Ganesh Video Call</h2>
@@ -14,7 +14,8 @@ export default function LandingPage() {
 
         <div className="navlist">
           <p onClick={() => {
-            router("/berv5b5")
+            const randomCode = Math.random().toString(36).substring(2, 9);
+            router(`/${randomCode}`);
           }}>Join As Guest</p>
 
           <p onClick={() => {
@@ -44,7 +45,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div>
-          <img src="/mobile.png"></img>
+          <img src="/mobile.png" alt="Mobile presentation showcase" />
         </div>
       </div>
     </div>
