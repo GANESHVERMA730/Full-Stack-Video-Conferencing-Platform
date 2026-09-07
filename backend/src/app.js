@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import express from "express";
 import { createServer } from "node:http";
 import mongoose from "mongoose";
@@ -18,7 +20,11 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/auth", userRoutes);
 
 const start = async () => {
-  const mongoUri = process.env.MONGO_URI || "mongodb+srv://Zoom-call512:7DzoomGT142@zoomcall.gaboptf.mongodb.net/";
+  const mongoUri = process.env.MONGO_URI;
+
+if (!mongoUri) {
+  throw new Error("MONGO_URI environment variable is required");
+}
   const connectionDB = await mongoose.connect(mongoUri);
 
   console.log(`MONGO Connected DB HOST: ${connectionDB.connection.host}`);
