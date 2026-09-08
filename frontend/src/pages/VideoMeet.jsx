@@ -308,61 +308,21 @@ export default function VideoMeetComponent() {
   };
 
   const getDisplayMediaSuccess = useCallback((screenStream) => {
-  const screenTrack = screenStream.getVideoTracks()[0];
+    const screenTrack = screenStream.getVideoTracks()[0];
 
-  if (!screenTrack) {
-    setScreen(false);
-    return;
-  }
-
-  window.screenStream = screenStream;
-
-  // Show screen share locally
-  if (localVideoref.current) {
-    localVideoref.current.srcObject = screenStream;
-  }
-
-  // Replace camera track with screen track for every peer
-  for (let id in connectionsRef.current) {
-    if (id === socketIdRef.current) continue;
-
-    const peer = connectionsRef.current[id];
-
-    const videoSender = peer
-      .getSenders()
-      .find((sender) => sender.track && sender.track.kind === "video");
-
-    if (videoSender) {
-      videoSender.replaceTrack(screenTrack).catch((error) => {
-        console.error("Error replacing camera with screen:", error);
-      });
-    }
-  }
-
-  // When screen sharing is stopped from browser/system
-  screenTrack.onended = () => {
-    setScreen(false);
-
-    const cameraStream = window.cameraStream;
-
-    if (!cameraStream) {
-      console.error("Camera stream not found");
+    if (!screenTrack) {
+      setScreen(false);
       return;
     }
 
-    const cameraTrack = cameraStream.getVideoTracks()[0];
+    window.screenStream = screenStream;
 
-    if (!cameraTrack) {
-      console.error("Camera video track not found");
-      return;
-    }
-
-    // Show camera locally again
+    // Show screen share locally
     if (localVideoref.current) {
-      localVideoref.current.srcObject = cameraStream;
+      localVideoref.current.srcObject = screenStream;
     }
 
-    // Replace screen track with camera track for every peer
+    // Replace camera track with screen track for every peer
     for (let id in connectionsRef.current) {
       if (id === socketIdRef.current) continue;
 
@@ -373,33 +333,73 @@ export default function VideoMeetComponent() {
         .find((sender) => sender.track && sender.track.kind === "video");
 
       if (videoSender) {
-        videoSender.replaceTrack(cameraTrack).catch((error) => {
-          console.error("Error restoring camera:", error);
+        videoSender.replaceTrack(screenTrack).catch((error) => {
+          console.error("Error replacing camera with screen:", error);
         });
       }
     }
 
-    window.localStream = cameraStream;
-    window.screenStream = null;
-  };
-}, []);
+    // When screen sharing is stopped from browser/system
+    screenTrack.onended = () => {
+      setScreen(false);
+
+      const cameraStream = window.cameraStream;
+
+      if (!cameraStream) {
+        console.error("Camera stream not found");
+        return;
+      }
+
+      const cameraTrack = cameraStream.getVideoTracks()[0];
+
+      if (!cameraTrack) {
+        console.error("Camera video track not found");
+        return;
+      }
+
+      // Show camera locally again
+      if (localVideoref.current) {
+        localVideoref.current.srcObject = cameraStream;
+      }
+
+      // Replace screen track with camera track for every peer
+      for (let id in connectionsRef.current) {
+        if (id === socketIdRef.current) continue;
+
+        const peer = connectionsRef.current[id];
+
+        const videoSender = peer
+          .getSenders()
+          .find((sender) => sender.track && sender.track.kind === "video");
+
+        if (videoSender) {
+          videoSender.replaceTrack(cameraTrack).catch((error) => {
+            console.error("Error restoring camera:", error);
+          });
+        }
+      }
+
+      window.localStream = cameraStream;
+      window.screenStream = null;
+    };
+  }, []);
 
   const getDisplayMedia = useCallback(() => {
-  if (!screen) return;
+    if (!screen) return;
 
-  if (!navigator.mediaDevices.getDisplayMedia) {
-    setScreen(false);
-    return;
-  }
-
-  navigator.mediaDevices
-    .getDisplayMedia({ video: true, audio: true })
-    .then(getDisplayMediaSuccess)
-    .catch((error) => {
-      console.error("Screen sharing cancelled or failed:", error);
+    if (!navigator.mediaDevices.getDisplayMedia) {
       setScreen(false);
-    });
-}, [screen, getDisplayMediaSuccess]);
+      return;
+    }
+
+    navigator.mediaDevices
+      .getDisplayMedia({ video: true, audio: true })
+      .then(getDisplayMediaSuccess)
+      .catch((error) => {
+        console.error("Screen sharing cancelled or failed:", error);
+        setScreen(false);
+      });
+  }, [screen, getDisplayMediaSuccess]);
 
   useEffect(() => {
     if (screen !== undefined && !askForUsername) {
@@ -414,18 +414,18 @@ export default function VideoMeetComponent() {
   }, [askForUsername]);
 
   const handleScreen = () => {
-  if (screen) {
-    if (window.screenStream) {
-      window.screenStream.getTracks().forEach((track) => {
-        track.stop();
-      });
+    if (screen) {
+      if (window.screenStream) {
+        window.screenStream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      } else {
+        setScreen(false);
+      }
     } else {
-      setScreen(false);
+      setScreen(true);
     }
-  } else {
-    setScreen(true);
-  }
-};
+  };
 
   const handleEndCall = () => {
     try {
@@ -539,9 +539,9 @@ export default function VideoMeetComponent() {
             {screenAvailable === true ? (
               <IconButton onClick={handleScreen} style={{ color: "white" }}>
                 {screen === true ? (
-                  <StopScreenShareIcon />
-                ) : (
                   <ScreenShareIcon />
+                ) : (
+                  <StopScreenShareIcon />
                 )}
               </IconButton>
             ) : null}
