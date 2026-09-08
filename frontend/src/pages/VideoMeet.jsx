@@ -81,6 +81,7 @@ export default function VideoMeetComponent() {
           .getUserMedia({ video: true, audio: true })
           .catch(() => null);
         if (userMediaStream) {
+          window.cameraStream = userMediaStream;
           window.localStream = userMediaStream;
           if (localVideoref.current) {
             localVideoref.current.srcObject = userMediaStream;
@@ -306,38 +307,62 @@ export default function VideoMeetComponent() {
     });
   };
 
-  const getDisplayMediaSuccess = useCallback((stream) => {
-    window.localStream = stream;
+  const getDisplayMediaSuccess = useCallback((screenStream) => {
+    const screenTrack = screenStream.getVideoTracks()[0];
+
+    if (!screenTrack) return;
+
     if (localVideoref.current) {
-      localVideoref.current.srcObject = stream;
+      localVideoref.current.srcObject = screenStream;
     }
 
     for (let id in connectionsRef.current) {
       if (id === socketIdRef.current) continue;
 
       const peer = connectionsRef.current[id];
-      addStreamToPeer(peer, window.localStream);
-      peer.createOffer().then((description) => {
-        peer
-          .setLocalDescription(description)
-          .then(() => {
-            socketRef.current.emit(
-              "signal",
-              id,
-              JSON.stringify({ sdp: peer.localDescription }),
-            );
-          })
-          .catch((e) => console.error(e));
-      });
+
+      const videoSender = peer
+        .getSenders()
+        .find((sender) => sender.track?.kind === "video");
+
+      if (videoSender) {
+        videoSender.replaceTrack(screenTrack).catch((e) => {
+          console.error("Error replacing camera track:", e);
+        });
+      }
     }
 
-    stream.getTracks().forEach(
-      (track) =>
-        (track.onended = () => {
-          setScreen(false);
-          getPermissions();
-        }),
-    );
+    screenTrack.onended = () => {
+      setScreen(false);
+
+      const cameraStream = window.cameraStream;
+
+      if (!cameraStream) return;
+
+      const cameraTrack = cameraStream.getVideoTracks()[0];
+
+      if (localVideoref.current) {
+        localVideoref.current.srcObject = cameraStream;
+      }
+
+      for (let id in connectionsRef.current) {
+        if (id === socketIdRef.current) continue;
+
+        const peer = connectionsRef.current[id];
+
+        const videoSender = peer
+          .getSenders()
+          .find((sender) => sender.track?.kind === "video");
+
+        if (videoSender) {
+          videoSender.replaceTrack(cameraTrack).catch((e) => {
+            console.error("Error restoring camera track:", e);
+          });
+        }
+      }
+
+      window.localStream = cameraStream;
+    };
   }, []);
 
   const getDisplayMedia = useCallback(() => {
@@ -479,9 +504,9 @@ export default function VideoMeetComponent() {
             {screenAvailable === true ? (
               <IconButton onClick={handleScreen} style={{ color: "white" }}>
                 {screen === true ? (
-                  <ScreenShareIcon />
-                ) : (
                   <StopScreenShareIcon />
+                ) : (
+                  <ScreenShareIcon />
                 )}
               </IconButton>
             ) : null}
