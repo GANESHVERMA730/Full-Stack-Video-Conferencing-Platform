@@ -7,10 +7,6 @@
     color: white;
 }
 
-video {
-    transform: scaleX(-1);
-}
-
 .conferenceView {
     display: flex;
     flex-wrap: wrap;
@@ -32,6 +28,7 @@ video {
     background: #151b2e;
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    transform: none;
 }
 
 .meetUserVideo {
@@ -41,6 +38,7 @@ video {
     width: 220px;
     height: 140px;
     object-fit: cover;
+    transform: scaleX(-1);
     border-radius: 14px;
     border: 2px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
