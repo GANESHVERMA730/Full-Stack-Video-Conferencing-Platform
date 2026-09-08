@@ -20,7 +20,7 @@
 }
 
 .conferenceView video {
-    transform: none;
+    transform: none !important;
     width: 280px;
     height: 180px;
     min-width: 0;

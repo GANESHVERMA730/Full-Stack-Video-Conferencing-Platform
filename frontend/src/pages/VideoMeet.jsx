@@ -565,6 +565,7 @@ export default function VideoMeetComponent() {
             autoPlay
             muted
             playsInline
+            style={{ transform: "scaleX(-1)" }}
           />
 
           <div className={styles.conferenceView}>
@@ -579,6 +580,7 @@ export default function VideoMeetComponent() {
                   }}
                   autoPlay
                   playsInline
+                  style={{ transform: "scaleX(1)" }}
                 ></video>
               </div>
             ))}
