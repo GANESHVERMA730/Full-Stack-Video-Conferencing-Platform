@@ -32,7 +32,6 @@
 }
 
 .meetUserVideo {
-    transform: scaleX(-1);
     position: absolute;
     right: 25px;
     bottom: 100px;
@@ -291,3 +290,4 @@
         border-radius: 14px;
     }
 }
+
