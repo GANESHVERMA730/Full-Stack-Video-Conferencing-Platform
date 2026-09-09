@@ -1,5 +1,9 @@
 # 🎥 Full-Stack Video Conferencing Platform
 
+## 🌐 Live Demo
+
+🚀 [View Live Project](https://full-stack-video-conferencing-platform.onrender.com)
+
 A real-time video conferencing web application built using the **MERN stack, WebRTC, and Socket.io**.
 
 This project was built to learn and implement real-time communication, peer-to-peer video calling, authentication, and full-stack application development.
